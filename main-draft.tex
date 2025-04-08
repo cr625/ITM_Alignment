@@ -1,0 +1,258 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{multirow}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{caption}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Role-based Ethics for Decision-maker Alignment\\
+
+\thanks{This research was conducted as part of the In the Moment
+(ITM) project, supported by the Defense Advanced
+Research Projects Agency (DARPA) under contract number
+HR001122S0031.\\\\
+Decision-maker characterization data was developed and provided by Soar Technology, LLC. and RTX BBN Technologies.}
+}
+
+\author{
+\IEEEauthorblockN{Christopher B.\ Rauch}
+\IEEEauthorblockA{\textit{College of Computing and Informatics}\\
+\textit{Drexel University}\\
+Philadelphia, PA, USA\\
+cr625@drexel.edu}
+\and
+\IEEEauthorblockN{Matthew Molineaux}
+\IEEEauthorblockA{\textit{Parallax Advanced Research}\\
+Beavercreek, OH, USA\\
+matthew.molineaux@parallaxresearch.org}
+\and
+\IEEEauthorblockN{Mallika Mainali}
+\IEEEauthorblockA{\textit{College of Computing and Informatics}\\
+\textit{Drexel University}\\
+Philadelphia, PA, USA\\
+mm5579@drexel.edu}
+\and
+\IEEEauthorblockN{Anik Sen}
+\IEEEauthorblockA{\textit{College of Computing and Informatics}\\
+\textit{Drexel University}\\
+Philadelphia, PA, USA\\
+as5867@drexel.edu\\}
+\and
+\IEEEauthorblockN{Michael W. Floyd}
+\IEEEauthorblockA{\textit{Knexus Research}\\
+National Harbor, MD, USA\\
+michael.floyd@knexusresearch.com}
+\and
+\IEEEauthorblockN{Rosina O Weber}
+\IEEEauthorblockA{\textit{College of Computing and Informatics}\\
+\textit{Drexel University}\\
+Philadelphia, PA, USA\\
+rosina@drexel.edu}
+}
+
+\maketitle
+
+\begin{abstract}
+Role-based ethics posits that AI decision-makers must perform tasks typically conducted in professional roles with a level of competence at least equivalent to that of their human counterparts. In many professional domains, rules, standards, and guidelines provide an optimal answer to decision problems in a static context. However, in dynamic scenarios, they may not cover all possible conditions, or the optimal solution may be out of reach. This may lead experts to make choices that are contextually valid according to prior cases but deviate from the textbook solution. This paper introduces a framework for validating the outputs of an Algorithmic Decision Maker (ADM) designed to emulate human decision-making in professional roles by evaluating adherence to rules while also accounting for possible deviations represented in analogous past decisions. We demonstrate its application in military medical triage using the Tactical Combat Casualty Care (TCCC) guidelines and related references as sources of professional standards.
+\end{abstract}
+
+\begin{IEEEkeywords}
+AI Competence Assessment, Rule-Based AI Evaluation, Professional Standards in AI, AI Decision-Maker Alignment, Automated Rule-Based Scoring
+\end{IEEEkeywords}
+
+\section{Introduction}
+\label{sec:introduction}
+%%%%  1. Setting (decision-maker alignment)
+% Alignment is acting according to normative expectations.
+% Professions have guidelines and standards.
+% Professionals are measured against those guidelines and standards
+When a human acts in a professional capacity, it is common to evaluate their alignment with ethical principles, social norms, and legal regulations against the guidelines and standards of their professions \cite{badcott_professional_2011}.
+% ADM can be measured by analogy
+One approach to assessing AI alignment involves analyzing whether an AI system operates in accordance with human-intended normative standards \cite{wallach_moral_2009}. By analogy, standards and guidelines applicable to human decision makers can be applied to assess AI systems when performing tasks typically associated with human professions.  \cite{awad_computational_2022}.
+
+%%%% 2. Review (ADM By Parallax)
+% Molineaux et al. (2024) developed ADM reusing prior cases supplemented with decision analytics
+Molineaux et al. (2024) describe an ADM that reuses prior cases in order to select a course of action in response to a scenario that takes place in a simulated combat medical triage environment \cite{molineaux_aligning_2024}. 
+%% Restrictions
+% Suboptimal region where decisions are made
+% DM Alignment vs ADM (ADM) prioritizes dm  attributes alignment
+% A reused case might not be feasible or may not conform to domain knowledge when the context is different.
+
+There remains a gap in validating whether reused decisions remain feasible in new contexts and whether they fully adhere to relevant domain knowledge in the current context. A reused case might appear suitable on the basis of previous outcomes, but contextual differences can render it infeasible or incorrect. Mechanisms are needed to confirm that suboptimal choices are still correct within operational constraints and to account for changing contextual requirements when drawing on past cases. However, the emphasis on aligning with specific decision-maker attributes can also cause the selection of a case that appears to be suboptimal but which better reflects what an experienced professional decision maker would decide to do in a given context.
+%% don't use the words expert or structure. Do not say the correct answer does not exist, only that it is out of reach. No need to mention high-stakes decisions.
+
+%% contribution (value)
+This work introduces a rule-based evaluation layer for the Molineaux ADM. By encoding Tactical Combat Casualty Care (TCCC) guidelines into formal rule sets, the system establishes a baseline for assessing alignment with professional standards. Our approach extends the existing ADM framework by integrating a validation component that applies rules, decision trees, and constraints from the TCCC guidelines (see Section ~\ref{sec:rule_extraction}) to a scenario-based decision problem. The optimal decision is derived from an ideal scenario under these rules, while suboptimal choices are ranked based on a scoring system and rule conformance. This validation serves two purposes: (1) to ensure that all decisions considered remain feasible within established rules and (2) to identify cases where seemingly suboptimal choices reflect the influence of decision maker characteristics.
+%% 5. Purpose
+% Demonstrate role-based ethics validate reused decisions
+% Rank possible decisions according to adherence to applied rules extracted from TCCC and CPGs
+% Use of decision trees and constraints to give textbook answer.
+
+%% 6. Value
+% Prioritizes conformance with rules
+% Shows when suboptimal decision is out of reach, but chosen, some other influence is present.
+
+%% Results
+% List of all the decisions in all of the probes
+% Competence scores output next to the chosen ADM decision. 
+The validation layer generated competence scores for all possible decisions across all given scenarios and applied extracted rules from the TCCC and related guidelines. Each decision was assigned a baseline score, adjusted for injury severity, procedural relevance, and contextual constraints. The system then produced ranked assessments, identifying the optimal decision and scoring alternatives that were still feasible based on their adherence to these rules.
+%% 7. Layout.
+% Background: Role Morality and alignment
+The following sections provide a detailed examination of the theoretical foundations, implementation, and evaluation of this framework.
+In Section ~\ref{sec:role_morality}, we examine the concept of role morality and the principles of role-based ethics in more detail. Section ~\ref{sec:implementation} details the implementation of the TCCC Competence Assessor (TCA) and its methodological framework. Section ~\ref{sec:rule_extraction} describes the rule extraction process, outlining how decision trees, constraints, and structured rules were constructed from the TCCC guidelines. Finally, in Section ~\ref{sec:conclusion} , we discuss the broader implications of using professional guidelines and standards to evaluate algorithmic decision-makers and propose directions for future research, including extending the framework to other professional domains and incorporating open-world modeling considerations.
+% 
+\section{Role Morality and Role-Based Ethics}
+\label{sec:role_morality}
+Role-based ethics evaluates decision-making by defining ethical behavior according to responsibilities tied to specific roles. Unlike general ethical frameworks such as utilitarianism or deontology, role morality determines acceptable actions based on the expectations of a professional community \cite{dawson_professional_1994}. This provides an approach to assessing whether decisions align with the duties, norms, and guidelines governing a profession rather than evaluating actions in isolation.
+
+For AI systems performing professional functions, role-based ethics offers a framework for evaluating alignment by comparing AI decisions to those of human professionals in the same role. Since professional standards define what constitutes competent decision-making in a given domain, AI alignment can be assessed in terms of adherence to these established guidelines. This allows AI decision-making to be evaluated not just for rule compliance but for its consistency with human professional judgment \cite{dubber_oxford_2020}.
+
+Formal methods, such as rule-based systems and logic-based frameworks, enable the systematic application of role-based ethics in AI assessment \cite{wotawa_model-based_2022, sarmiento_action_2023}. By encoding professional expectations into structured decision models, AI alignment can be measured against the same normative criteria that govern human decision-makers.
+
+\section{Implementation}
+\label{sec:implementation}
+In order to analyze the simulated medical triage scenarios presented in the context of the ADM described in ~\ref{sec:introduction}, we developed the TCCC Competence Assessor (TCA). The TCA currently operates within an interactive closed-world model environment, which means that it evaluates decisions strictly within explicitly defined constructs, including casualty categories, injury types, treatment possibilities, available supplies, and categorized injuries.
+
+The TCA enumerates all potential decisions for each triage scenario by systematically generating every TCCC-compliant action based on the model state. Because this framework operates within a closed-world assumption, where possible actions, resources, and casualty conditions are explicitly defined and bounded, the enumeration remains computationally manageable. For scenarios with substantially increased complexity or open-world characteristics, different methodological approaches may be required, drawing from established models in operations research, simulation modeling, ontology representation, constraint satisfaction problems, and rule extraction \cite{tolmeijer_implementations_2021}. The key aspect is the application of a rule-driven modeling approach to learning-based decision-making methods.
+
+As summarized in Table~\ref{tab:tca_algorithm}, the TCA algorithm follows a structured approach:
+\begin{enumerate}
+\item \textbf{Extract Scenario Data:} The TCA collects casualty (injuries, vitals, conditions) and available medical resource data from the structured representation of a medical triage scenario.
+\item \textbf{Enumerate Possible Actions:} The TCA determines every valid TCCC action, such as assigning triage tags, applying treatments, checking vitals, evacuating casualties, or applying supplies.
+\item \textbf{Apply Contextual Constraints:} The TCA narrows the list of possible actions by applying protocol limitations, casualty conditions, and resource availability, retaining only those actions that are medically and operationally valid.
+\end{enumerate}
+
+This superset of possible decisions serves as a reference against which the chosen decisions are evaluated. Each potential decision is matched with its relevant rule set, such as the \textit{TreatmentRuleSet} for medical interventions or the \textit{VitalSignsTaggingRuleSet} for casualty classification. The TCA then calculates a baseline competence score for each action, measuring alignment with TCCC guidelines and battlefield medical practices. This process identifies any omitted actions that could have improved casualty outcomes and ranks the relative competence of selected actions. The TCA then applies the MARCH algorithm, which prioritizes massive hemorrhage control, airway management, and respiration over less urgent concerns, such as pain control.
+
+When two or more actions receive the same competence score, the TCA distinguishes them based on injury severity and number of injuries. This procedure yields a ranked list of every possible decision, indicating how each selected action relates to the full set of potential interventions. A high-ranked decision corresponds to stronger adherence to established medical standards, whereas a lower-ranked decision indicates that a more standard alternative was available but not selected.
+
+To illustrate how these rule-based recommendations were derived, we detail the extraction process used to develop the structured rule set of the TCA.
+
+\section{Rule Extraction}
+\label{sec:rule_extraction}
+The rule extraction process for the Tactical Combat Casualty Care Triage Competence Assessor (TCA) began with the submission of decision diagrams from the \textit{Army Tactical Combat Casualty Care Handbook} \cite{army2017tccc} and the \textit{TCCC Quick Reference Manual} \cite{cotccc2021tccc} to OpenAI’s ChatGPT-4. These diagrams were processed by the model, which was instructed to formulate the triage algorithms as Wolfram Language code. This generated an initial set of structured decision pathways that were then converted into conditional logic statements. To ensure alignment with established protocols, these statements were validated against Clinical Practice Guidelines(CPGs) \cite{jts2025cpgs} and supplemented with structured knowledge from \textit{Fundamentals of Military Medicine} \cite{oconnor2019fundamentals} and \textit{Military Medical Ethics} \cite{beam2003military}.
+
+The finalized rule set was implemented in Python for the ITM Triage simulation, linking structured conditions to specific triage actions, such as treatment application and casualty classification. A scoring system was established to evaluate decisions based on factors that included categorical attributes, such as supply type, and ordinal attributes, such as injury severity, which was derived from a predefined list of possible severities in ranked order to implement the scoring system. The final competence score for each decision was calculated as:
+
+\[
+S = \sum w_i \cdot v_i
+\]
+
+where \( w_i \) represents the weight assigned to a given factor and \( v_i \) represents its corresponding attribute value. This method aligns with Constraint Satisfaction Problems (CSPs), expressing rules as constraints in the form:
+
+\[
+C(x) = \{x \mid R(x)\}
+\]
+
+as explored in recent work on leveraging LLMs for constraint-based decision-making \cite{hotz2024llm, regin_combining_2024}. By integrating semi-automated extraction with a symbolic computational approach, we developed a structured rule set that enabled systematic evaluation of AI decision-making with TCCC guidelines and the encoded knowledge they represent.
+
+
+\section{Conclusion}
+\label{sec:conclusion}
+This paper introduces a framework for validating AI decision-making in professional contexts by evaluating decisions according to rules extracted from established guidelines. Guided by role-based ethics, the approach assesses the competence of ADMs according to Tactical Combat Casualty Care (TCCC) standards. By applying structured classification rules, as well as referencing previous cases representing expert behavior, it identifies instances in which an ADM's actions adhere to or depart from documented best practices, highlighting where professional judgment can complement official guidelines. Although the TCCC case study shows that a rules-based validation procedure can gauge alignment between AI and human values, the current design employs a closed-world model with explicitly defined decision variables. Future work will incorporate an ontology-based, open-world approach to handle unforeseen conditions and broaden this framework to other fields governed by professional guidelines. This expansion may draw on methods from operations research, simulation modeling, and constraint satisfaction to manage increased complexity, while rule extraction can refine decision-making logic to better reflect the adaptive strategies seen in real-world applications.
+\\
+
+\textit{
+Table 1 presents competence scores assigned to different treatment actions, with the final recommended action representing the most competent available decisions.}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\caption{Triage Competence Assessor Results and Recommended Actions}
+\label{tab:triage_competence_combined}
+
+% -- First section: Actions with Relative Competence --
+\begin{tabular}{l l l c}
+\hline
+\multicolumn{4}{l}{\textbf{Actions with Relative Competence}}\\
+\hline
+\textbf{Act} & \textbf{Trt} & \textbf{Loc} & \textbf{Rel.\ Comp.} \\
+\hline
+\multirow{3}{*}{\parbox{1.2cm}{Apply\\(Patient~A)}} 
+ & Hemo.\ Gauze  & R.\ Shoulder & 1.0 \\
+ & Press.\ Bandage & R.\ Shoulder & 0.9 \\
+ & Pain Meds     & Unspec.      & 0.8 \\
+\hline
+\multirow{3}{*}{\parbox{1.2cm}{Apply\\(Patient~B)}} 
+ & Hemo.\ Gauze  & L.\ Stomach  & 1.0 \\
+ & Press.\ Bandage & L.\ Stomach  & 0.9 \\
+ & Pain Meds     & Unspec.      & 0.8 \\
+\hline
+\end{tabular}
+
+\vspace{1em}  % Extra vertical space to separate sections
+
+% -- Second section: Recommended Actions --
+\begin{tabular}{l l l c}
+\hline
+\multicolumn{4}{l}{\textbf{Recommended Actions Based on Overall Competence}}\\
+\hline
+\textbf{Act} & \textbf{Trt} & \textbf{Loc} & \textbf{Overall Comp.} \\
+\hline
+Apply (Pat~A) & Hemo.\ Gauze & R.\ Shoulder & Best \\
+\hline
+Apply (Pat~B) & Hemo.\ Gauze & L.\ Stomach  & Next \\
+\hline
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.2} % Adjust line spacing
+\captionsetup{justification=centering} % Center caption
+\caption{TCA Algorithm}
+\label{tab:tca_algorithm}
+\begin{tabular}{l}
+    \begin{minipage}{\columnwidth}  % Fit within one column
+        \raggedright
+        \begin{algorithmic}[1]
+            \Require \textit{probe} (\texttt{Scenario} containing casualties, supplies, and chosen decisions)
+            \State \textbf{Ensure:} \{\texttt{all\_possible}, \texttt{chosen}, \texttt{final\_ranking}\}
+
+            \State casualties $\gets$ probe.state.casualties  \Comment{Extract casualty data}
+            \State supplies $\gets$ probe.state.supplies  \Comment{Extract available medical supplies}
+
+            \State all\_possible\_decisions $\gets$ \Call{enumerateAllValidDecisions}{casualties, supplies}
+            \Comment{Generate valid TCCC-compliant actions}
+
+            \State chosen\_decisions $\gets$ probe.decisions  \Comment{Subset of user- or AI-chosen actions}
+
+            \State baselineScores $\gets \{\}$  \Comment{Initialize baseline competence scores}
+
+            \ForAll{decision in all\_possible\_decisions} 
+                \State dType $\gets$ \Call{classifyDecisionType}{decision}
+                \State dScore $\gets$ \Call{computeBaselineScore}{decision, dType, casualties, supplies}
+                \State baselineScores[decision] $\gets$ dScore
+            \EndFor
+            \Comment{Evaluate each decision’s alignment with TCCC standards}
+
+            \State rankedDecisions $\gets$ \Call{applyMARCHAndTieBreaks}{baselineScores, casualties}
+            \Comment{Prioritize life-saving actions and resolve ties}
+
+            \State \Return \{\texttt{all\_possible} : all\_possible\_decisions, 
+            \quad \texttt{chosen} : chosen\_decisions, 
+            \quad \texttt{final\_ranking} : rankedDecisions\}
+        \end{algorithmic}
+    \end{minipage}
+\end{tabular}
+\end{table}
+
+
+\clearpage
+\newpage
+\bibliographystyle{IEEEtran}
+\bibliography{bibliography}
+
+\end{document}
