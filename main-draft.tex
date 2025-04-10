@@ -1,4 +1,5 @@
 \documentclass[conference]{IEEEtran}
+\usepackage{hyperref}
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{cite}
@@ -62,11 +63,11 @@ rosina@drexel.edu}
 \maketitle
 
 \begin{abstract}
-Role-based ethics posits that AI decision-makers must perform tasks typically conducted in professional roles with a level of competence at least equivalent to that of their human counterparts. In many professional domains, rules, standards, and guidelines provide an optimal answer to decision problems in a static context. However, in dynamic scenarios, they may not cover all possible conditions, or the optimal solution may be out of reach. This may lead experts to make choices that are contextually valid according to prior cases but deviate from the textbook solution. This paper introduces a framework for validating the outputs of an Algorithmic Decision Maker (ADM) designed to emulate human decision-making in professional roles by evaluating adherence to rules while also accounting for possible deviations represented in analogous past decisions. We demonstrate its application in military medical triage using the Tactical Combat Casualty Care (TCCC) guidelines and related references as sources of professional standards.
+Role-based ethics posits that AI decision-makers must perform tasks typically conducted in professional roles with a level of competence at least equivalent to that of their human counterparts. In many professional domains, rules, standards, and guidelines provide an optimal answer to decision problems in a static context. However, in dynamic scenarios, these guidelines may not cover all possible conditions, or the optimal solution may be unattainable due to operational constraints. This may lead human experts to make choices that are contextually valid according to prior cases but deviate from textbook solutions. This paper introduces a framework for validating the outputs of an Algorithmic Decision Maker (ADM) designed to emulate human decision making in professional roles by evaluating adherence to formal rules while accounting for justified deviations represented in analogous past decisions. We demonstrate its application in military medical triage using the Tactical Combat Casualty Care (TCCC) guidelines and related references as sources of professional standards.
 \end{abstract}
 
 \begin{IEEEkeywords}
-AI Competence Assessment, Rule-Based AI Evaluation, Professional Standards in AI, AI Decision-Maker Alignment, Automated Rule-Based Scoring
+AI Competence Assessment, Rule-Based AI Evaluation, AI Decision-Maker Alignment, Role-Based Ethics in AI, Standards-Based Decision Validation
 \end{IEEEkeywords}
 
 \section{Introduction}
@@ -75,40 +76,16 @@ AI Competence Assessment, Rule-Based AI Evaluation, Professional Standards in AI
 % Alignment is acting according to normative expectations.
 % Professions have guidelines and standards.
 % Professionals are measured against those guidelines and standards
-When a human acts in a professional capacity, it is common to evaluate their alignment with ethical principles, social norms, and legal regulations against the guidelines and standards of their professions \cite{badcott_professional_2011}.
-% ADM can be measured by analogy
-One approach to assessing AI alignment involves analyzing whether an AI system operates in accordance with human-intended normative standards \cite{wallach_moral_2009}. By analogy, standards and guidelines applicable to human decision makers can be applied to assess AI systems when performing tasks typically associated with human professions.  \cite{awad_computational_2022}.
+When humans act in professional capacities, their alignment with ethical principles, social norms, and legal regulations is typically evaluated against established guidelines and standards of their professions \cite{badcott_professional_2011}. One approach to assessing AI alignment involves analyzing whether an AI system operates in accordance with human normative standards \cite{wallach_moral_2009}. Given this analogy, professional standards and guidelines developed for human decision-makers can be systematically applied to evaluate AI systems when they perform tasks traditionally associated with human professional roles \cite{awad_computational_2022}. This standards-based approach provides a concrete framework for validating whether AI decisions meet the same competence criteria expected of human professionals in domains such as medical triage. The alignment of an AI system can therefore be judged, at least in part, by its adherence to these established professional standards. However, real-world decision making is often context-dependent and involves cases not anticipated in discrete guidelines.
 
-%%%% 2. Review (ADM By Parallax)
-% Molineaux et al. (2024) developed ADM reusing prior cases supplemented with decision analytics
-Molineaux et al. (2024) describe an ADM that reuses prior cases in order to select a course of action in response to a scenario that takes place in a simulated combat medical triage environment \cite{molineaux_aligning_2024}. 
-%% Restrictions
-% Suboptimal region where decisions are made
-% DM Alignment vs ADM (ADM) prioritizes dm  attributes alignment
-% A reused case might not be feasible or may not conform to domain knowledge when the context is different.
+Molineaux et al. (2024) developed an ADM that reuses prior cases to select courses of action in simulated combat medical triage scenarios, with an emphasis on aligning with specific decision-maker attributes \cite{molineaux_aligning_2024}. Their approach can be extended by addressing the validation of whether reused decisions are applicable in new contexts and adhere to relevant domain knowledge. A reused case may appear suitable based on previous outcomes, but contextual differences can introduce new questions regarding general feasibility and correctness according to professional guidelines. This highlights an opportunity for complementary validation mechanisms that can confirm when apparently reused cases remain acceptable within operational constraints. This balance is particularly important, as the decision-maker alignment focus can sometimes lead the ADM to select cases that appear suboptimal by textbook standards but better reflect how experienced professionals actually adapt protocols in complex field situations.
 
-There remains a gap in validating whether reused decisions remain feasible in new contexts and whether they fully adhere to relevant domain knowledge in the current context. A reused case might appear suitable on the basis of previous outcomes, but contextual differences can render it infeasible or incorrect. Mechanisms are needed to confirm that suboptimal choices are still correct within operational constraints and to account for changing contextual requirements when drawing on past cases. However, the emphasis on aligning with specific decision-maker attributes can also cause the selection of a case that appears to be suboptimal but which better reflects what an experienced professional decision maker would decide to do in a given context.
-%% don't use the words expert or structure. Do not say the correct answer does not exist, only that it is out of reach. No need to mention high-stakes decisions.
+This work introduces a rule-based evaluation layer for the Molineaux ADM. By encoding Tactical Combat Casualty Care (TCCC) guidelines into formal rule sets, the system establishes a baseline for assessing alignment with professional standards. Our approach extends the existing ADM framework by integrating a validation component that applies rules, decision trees, and constraints from the TCCC guidelines (see Section ~\ref{sec:rule_extraction}) to a scenario-based decision problem. The optimal decision is selected from an ideal scenario under these rules, while alternative choices are ranked using a scoring system and degree of rule conformance. This validation serves two purposes: (1) to ensure that all decisions considered remain feasible within established rules and (2) to identify cases where seemingly suboptimal choices reflect the influence of decision-maker characteristics.
 
-%% contribution (value)
-This work introduces a rule-based evaluation layer for the Molineaux ADM. By encoding Tactical Combat Casualty Care (TCCC) guidelines into formal rule sets, the system establishes a baseline for assessing alignment with professional standards. Our approach extends the existing ADM framework by integrating a validation component that applies rules, decision trees, and constraints from the TCCC guidelines (see Section ~\ref{sec:rule_extraction}) to a scenario-based decision problem. The optimal decision is derived from an ideal scenario under these rules, while suboptimal choices are ranked based on a scoring system and rule conformance. This validation serves two purposes: (1) to ensure that all decisions considered remain feasible within established rules and (2) to identify cases where seemingly suboptimal choices reflect the influence of decision maker characteristics.
-%% 5. Purpose
-% Demonstrate role-based ethics validate reused decisions
-% Rank possible decisions according to adherence to applied rules extracted from TCCC and CPGs
-% Use of decision trees and constraints to give textbook answer.
+The validation layer generates competence scores for all possible decisions across all given scenarios by applying rules extracted from the TCCC and related guidelines. Each decision is assigned a baseline score, adjusted for injury severity, procedural relevance, and contextual constraints. The system then produces ranked assessments, identifying the optimal decision and scoring alternatives that are still feasible based on their adherence to the relevant rules.
 
-%% 6. Value
-% Prioritizes conformance with rules
-% Shows when suboptimal decision is out of reach, but chosen, some other influence is present.
-
-%% Results
-% List of all the decisions in all of the probes
-% Competence scores output next to the chosen ADM decision. 
-The validation layer generated competence scores for all possible decisions across all given scenarios and applied extracted rules from the TCCC and related guidelines. Each decision was assigned a baseline score, adjusted for injury severity, procedural relevance, and contextual constraints. The system then produced ranked assessments, identifying the optimal decision and scoring alternatives that were still feasible based on their adherence to these rules.
-%% 7. Layout.
-% Background: Role Morality and alignment
-The following sections provide a detailed examination of the theoretical foundations, implementation, and evaluation of this framework.
-In Section ~\ref{sec:role_morality}, we examine the concept of role morality and the principles of role-based ethics in more detail. Section ~\ref{sec:implementation} details the implementation of the TCCC Competence Assessor (TCA) and its methodological framework. Section ~\ref{sec:rule_extraction} describes the rule extraction process, outlining how decision trees, constraints, and structured rules were constructed from the TCCC guidelines. Finally, in Section ~\ref{sec:conclusion} , we discuss the broader implications of using professional guidelines and standards to evaluate algorithmic decision-makers and propose directions for future research, including extending the framework to other professional domains and incorporating open-world modeling considerations.
+The following sections provide an examination of the theoretical foundations, implementation, and evaluation of this framework.
+In Section ~\ref{sec:role_morality}, we examine the concept of role morality and the principles of role-based ethics in more detail. Section ~\ref{sec:implementation} details the implementation of the TCCC Competence Assessor (TCA) and its methodological framework. Section ~\ref{sec:rule_extraction} describes the rule extraction process, outlining how decision trees, constraints, and structured rules were constructed from the TCCC guidelines. Finally, in Section ~\ref{sec:conclusion}, we discuss the broader implications of using professional guidelines and standards to evaluate algorithmic decision-makers and propose directions for future research, including extending the framework to other professional domains and incorporating open-world modeling considerations.
 % 
 \section{Role Morality and Role-Based Ethics}
 \label{sec:role_morality}
@@ -162,7 +139,7 @@ This paper introduces a framework for validating AI decision-making in professio
 \\
 
 \textit{
-Table 1 presents competence scores assigned to different treatment actions, with the final recommended action representing the most competent available decisions.}
+Table 1 presents competence scores assigned to different treatment actions, with the final recommended action representing the most competent available decisions. Full preliminary results available \href{hhttps://github.com/cr625/ITM_Alignment/blob/main/ouput.md}{on GitHub}}
 
 \begin{table}[H]
 \centering
